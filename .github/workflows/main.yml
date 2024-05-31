@@ -28,4 +28,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/backPF-prueba:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/backpf-prueba:latest

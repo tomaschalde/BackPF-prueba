@@ -109,13 +109,12 @@ export class AuthService {
           grant_type: 'password',
           username: email,
           password: password,
-          scope: 'openid profile email', 
         },
       );
 
-      const { access_token, id_token } = response.data;
+      const token = response.data.access_token;
 
-      return { succes: 'Usuario logueado correctamente', id_token };
+      return { succes: 'Usuario logueado correctamente', token };
     } catch (error) {
       throw new UnauthorizedException('Invalid credentials');
     }

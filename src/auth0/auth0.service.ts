@@ -7,10 +7,10 @@ export class Auth0Service {
   private tokenExpiryTime: number = null;
 
   private async fetchToken(): Promise<void> {
-    const response = await axios.post(`${process.env.AUTH0_ISSUER_BASE_URL}/oauth/token`, {
-      client_id: process.env.AUTH0_CLIENT_ID,
-      client_secret: process.env.AUTH0_CLIENT_SECRET,
-      audience: process.env.AUTH0_MGMT_API_AUDIENCE,
+    const response = await axios.post(`https://dev-r34ulqlg6mkaafee.us.auth0.com/oauth/token`, {
+      client_id: 'Tt1y2DI6R5aNCzY7wRrodth6msACmGBz',
+      client_secret: 'o4QCuqVfAf0PqqpkWtOrxFHOlPthXUtTkcvZ-WiPQemK855_6U-tUTeZfrmwvc2O',
+      audience: 'https://dev-r34ulqlg6mkaafee.us.auth0.com/api/v2/',
       grant_type: 'client_credentials'
     });
 

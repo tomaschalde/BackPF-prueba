@@ -36,9 +36,8 @@ export class AuthService {
         'Este email ya se encuentra asociado a un usuario',
       );
     }
-
-    await this.mailService.registerUserMail(email, metadata.name, password);
     this.logger.log(email,metadata.name,password)
+    await this.mailService.registerUserMail(email, metadata.name, password);
     return this.Register(email, password, metadata, accessToken, 'user');
   }
 

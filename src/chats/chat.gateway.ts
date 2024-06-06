@@ -1,4 +1,4 @@
-import { Logger, UnauthorizedException } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
   MessageBody,
   SubscribeMessage,
@@ -11,7 +11,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatRepository } from './chatRepository';
-import axios from 'axios';
 
 @WebSocketGateway({
   cors: {
@@ -25,7 +24,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @WebSocketServer()
   server: Server;
 
-  private usuariosLogueados = new Set()
+  private usuariosLogueados = new Set('string');
+
   private logger: Logger = new Logger('ChatGateway');
 
   afterInit(server: Server) {
@@ -33,50 +33,31 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   handleDisconnect(client: Socket) {
-    // this.logger.log(`Cliente desconectado: ${client.id}`);
+    this.logger.log(`Cliente desconectado: ${client.id}`);
+    this.usuariosLogueados.delete(client.id)
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
+    this.logger.log(`Cliente conectado: ${client.id}`);
 
-    // this.logger.log(`Cliente conectado: ${client}`);
+    
+    if(!client.recovered){
+      const messages = await this.chatRepository.getMessageByDate(client.handshake.auth.server)
+
+      messages.forEach(message => {
+        this.server.emit('msgToCommunity', message.content, message.createdAt)
+      })
+    }
     
   }
 
 
-  @SubscribeMessage('authenticate')
-  async handleAuthenticate(client: Socket, token: string): Promise<void> {
-    try {
-      const response = await axios.get(`https://${process.env.AUTH0_DOMAIN}/userinfo`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        }
-      })
-      const userEmail = response.data.email;
-      const user = {id: client.id, email: userEmail}
-      this.usuariosLogueados.add(user);
-      this.logger.log(`Usuario autenticado: ${userEmail}`);
-      this.server.emit('users', Array.from(this.usuariosLogueados.values()));
-      
-    } catch (error) {
-
-      this.logger.log(`Autenticación fallida para cliente: ${client.id}`);
-      client.disconnect();
-      throw new UnauthorizedException('Invalid token');
-
-    }
-  }
-
   @SubscribeMessage('msgToCommunity')
-  handleMessageCommunity(@ConnectedSocket() client: Socket, @MessageBody() data: string): void {
-    if (this.usuariosLogueados.has(client.id)) {
-      this.usuariosLogueados.forEach((email, clientId : string) => {
-        this.server.to(clientId).emit('msgToCommunity', data);
-      });
-    } else {
-      this.logger.log(`Usuario no autenticado intentó enviar un mensaje: ${client.id}`);
-      client.disconnect();
-    }
-  }
+  async handleMessageCommunity(@ConnectedSocket() client: Socket, @MessageBody() data: string) {
+    const message = await this.chatRepository.newMessage(data)  
+    client.broadcast.emit('msgToCommunity',data, message.createdAt); 
+
+  }
 
 
 

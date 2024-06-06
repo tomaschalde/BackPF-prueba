@@ -38,7 +38,7 @@ export class AuthService {
     }
 
     await this.mailService.registerUserMail(email, metadata.name, password);
-    console.log(email,metadata.name,password)
+    this.logger.log(email,metadata.name,password)
     return this.Register(email, password, metadata, accessToken, 'user');
   }
 

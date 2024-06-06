@@ -36,7 +36,7 @@ export class AuthService {
         'Este email ya se encuentra asociado a un usuario',
       );
     }
-    this.logger.log(email,metadata.name,password)
+
     await this.mailService.registerUserMail(email, metadata.name, password);
     return this.Register(email, password, metadata, accessToken, 'user');
   }
@@ -106,7 +106,7 @@ export class AuthService {
 
         await this.userRepository.save(newUser);
       } else if (type === 'shelter') {
-        const newShelter = this.userRepository.create({
+        const newShelter = this.shelterRepository.create({
           ...metadata,
           email,
         } as Partial<ShelterEntity>);

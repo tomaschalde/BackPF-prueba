@@ -31,21 +31,22 @@ private shelterrepository: Repository<ShelterEntity>){}
         return pet;
     };
     
-    async addPet(petDto: CreatePetsDto) {
-        const shelter = await this.shelterrepository.findOne({
-            where: { shelter_name: petDto.shelter },
-        });
+    async addPet(pet: Partial<PetsEntity>,shelterId:string){
+        const shelter = await this.shelterrepository.findOne({ where: { id: shelterId } });
 
-        if (!shelter) {
-            throw new Error('El refugio no existe');
+        console.log(shelter)
+            if (!shelter) {
+                throw new Error('Shelter not found');
+            }
+        if (!shelterId) {
+            throw new Error("Shelter ID is required");
         }
-
-        const pet = this.petsRepository.create({
-            ...petDto,
-            shelter: shelter,
+        const Pets = this.petsRepository.create({
+            ...pet,
+            shelter:shelter
         });
-
-        await this.petsRepository.save(pet);
+       
+        await this.petsRepository.save(Pets);
 
         return "Mascota agregada correctamente";
     }

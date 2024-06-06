@@ -7,7 +7,7 @@ export class Auth0Service {
   private tokenExpiryTime: number = null;
 
   private async fetchToken(): Promise<void> {
-    const response = await axios.post(`${process.env.AUTH0_ISSUER_BASE_URL}/oauth/token`, {
+    const response = await axios.post(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
       client_id: process.env.AUTH0_CLIENT_ID,
       client_secret: process.env.AUTH0_CLIENT_SECRET,
       audience: process.env.AUTH0_MGMT_API_AUDIENCE,
